@@ -69,7 +69,7 @@ BBR_installation_status(){
 	if [[ ! -e ${BBR_file} ]]; then
 		echo -e "${Error} 没有发现 BBR脚本，开始下载..."
 		cd "${file}"
-		if ! wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh; then
+		if ! wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/bbr.sh -O bbr.sh; then
 			echo -e "${Error} BBR 脚本下载失败 !" && exit 1
 		else
 			echo -e "${Info} BBR 脚本下载完成 !"
@@ -609,7 +609,7 @@ Debian_apt(){
 # 下载 ShadowsocksR
 Download_SSR(){
 	cd "/usr/local/"
-	wget -N --no-check-certificate "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://github.com/ToyoDAdoubiBackup/shadowsocksr/archive/manyuser.zip"
+	wget -N --no-check-certificate "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://github.com/ToyoDAdoubiBackup/shadowsocksr/archive/manyuser.zip" -O manyuser.zip
 	#git config --global http.sslVerify false
 	#env GIT_SSL_NO_VERIFY=true git clone -b manyuser https://github.com/ToyoDAdoubiBackup/shadowsocksr.git
 	#[[ ! -e ${ssr_folder} ]] && echo -e "${Error} ShadowsocksR服务端 下载失败 !" && exit 1
@@ -759,7 +759,7 @@ Install_Libsodium(){
 		echo -e "${Info} 安装依赖..."
 		yum -y groupinstall "Development Tools"
 		echo -e "${Info} 下载..."
-		wget  --no-check-certificate -N "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://github.com/jedisct1/libsodium/releases/download/${Libsodiumr_ver}-RELEASE/libsodium-${Libsodiumr_ver}.tar.gz"
+		wget  --no-check-certificate -N "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://github.com/jedisct1/libsodium/releases/download/${Libsodiumr_ver}-RELEASE/libsodium-${Libsodiumr_ver}.tar.gz" -O libsodium-${Libsodiumr_ver}.tar.gz
 		echo -e "${Info} 解压..."
 		tar -xzf libsodium-${Libsodiumr_ver}.tar.gz && cd libsodium-${Libsodiumr_ver}
 		echo -e "${Info} 编译安装..."
@@ -770,7 +770,7 @@ Install_Libsodium(){
 		echo -e "${Info} 安装依赖..."
 		apt-get install -y build-essential
 		echo -e "${Info} 下载..."
-		wget  --no-check-certificate -N "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://github.com/jedisct1/libsodium/releases/download/${Libsodiumr_ver}-RELEASE/libsodium-${Libsodiumr_ver}.tar.gz"
+		wget  --no-check-certificate -N "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://github.com/jedisct1/libsodium/releases/download/${Libsodiumr_ver}-RELEASE/libsodium-${Libsodiumr_ver}.tar.gz" -O libsodium-${Libsodiumr_ver}.tar.gz
 		echo -e "${Info} 解压..."
 		tar -xzf libsodium-${Libsodiumr_ver}.tar.gz && cd libsodium-${Libsodiumr_ver}
 		echo -e "${Info} 编译安装..."
@@ -1220,7 +1220,7 @@ Install_ServerSpeeder(){
 	[[ -e ${Server_Speeder_file} ]] && echo -e "${Error} 锐速(Server Speeder) 已安装 !" && exit 1
 	cd /root
 	#借用91yun.rog的开心版锐速
-	wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder.sh
+	wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/91yun/serverspeeder/master/serverspeeder.sh -O serverspeeder.sh
 	[[ ! -e "serverspeeder.sh" ]] && echo -e "${Error} 锐速安装脚本下载失败 !" && exit 1
 	bash serverspeeder.sh
 	sleep 2s
@@ -1382,12 +1382,12 @@ Other_functions(){
 }
 # 封禁 BT PT SPAM
 BanBTPTSPAM(){
-	wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
+	wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh -O ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh banall
 	rm -rf ban_iptables.sh
 }
 # 解封 BT PT SPAM
 UnBanBTPTSPAM(){
-	wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
+	wget -N --no-check-certificate https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ban_iptables.sh -O ban_iptables.sh && chmod +x ban_iptables.sh && bash ban_iptables.sh unbanall
 	rm -rf ban_iptables.sh
 }
 Set_config_connect_verbose_info(){
@@ -1426,7 +1426,7 @@ Update_Shell(){
 		rm -rf /etc/init.d/ssr
 		Service_SSR
 	fi
-	wget -N --no-check-certificate "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh" && chmod +x ssr.sh
+	wget -N --no-check-certificate "https://ssr-resource-proxy.wangshirufeng.workers.dev?url=https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ssr.sh" -O ssr.sh && chmod +x ssr.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 # 显示 菜单状态
