@@ -57,8 +57,8 @@ check_pid(){
 	fi
 }
 Get_ip(){
-	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
-	ip="tunnel.huski.io"
+	read -e -p "请输入服务器的域名(默认: 外网IP):" ip
+	[[ -z "${ip}" ]] && ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 	if [[ -z "${ip}" ]]; then
 		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
 		if [[ -z "${ip}" ]]; then
