@@ -492,9 +492,13 @@ Set_iptables(){
 				if [[ ! -z ${Network_card} ]]; then
 					Network_card="venet0"
 				else
-					ifconfig
-					read -e -p "检测到本服务器的网卡非 eth0 \ ens3(Debian9) \ venet0(OpenVZ) \ enpXsX(CentOS Ubuntu 最新版本，X代表数字或字母)，请根据上面输出的网卡信息手动输入你的网卡名:" Network_card
-					[[ -z "${Network_card}" ]] && echo "取消..." && exit 1
+					Network_card=$(ifconfig|grep "ens5")
+					if [[ ! -z ${Network_card} ]]; then
+						Network_card="ens5"
+					else
+						ifconfig
+						read -e -p "检测到本服务器的网卡非 eth0 \ ens3(Debian9) \ venet0(OpenVZ) \ enpXsX(CentOS Ubuntu 最新版本，X代表数字或字母)，请根据上面输出的网卡信息手动输入你的网卡名:" Network_card
+						[[ -z "${Network_card}" ]] && echo "取消..." && exit 1
 				fi
 			fi
 		fi
