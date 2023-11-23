@@ -58,6 +58,7 @@ check_pid(){
 }
 Get_ip(){
 	ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
+	ip="tunnel.huski.io"
 	if [[ -z "${ip}" ]]; then
 		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
 		if [[ -z "${ip}" ]]; then
@@ -81,7 +82,7 @@ Download_ocserv(){
 	
 	if [[ -e ${file} ]]; then
 		mkdir "${conf_file}"
-		wget --no-check-certificate -N -P "${conf_file}" "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/other/ocserv.conf"
+		wget --no-check-certificate -N -P "${conf_file}" "https://raw.githubusercontent.com/liran/blog/master/ocserv.conf"
 		[[ ! -s "${conf}" ]] && echo -e "${Error} ocserv 配置文件下载失败 !" && rm -rf "${conf_file}" && exit 1
 	else
 		echo -e "${Error} ocserv 编译安装失败，请检查！" && exit 1
@@ -505,33 +506,34 @@ Set_iptables(){
 	chmod +x /etc/network/if-pre-up.d/iptables
 }
 Update_Shell(){
-	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ocserv.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
+	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/liran/blog/master/ocserv.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
 	if [[ -e "/etc/init.d/ocserv" ]]; then
 		rm -rf /etc/init.d/ocserv
 		Service_ocserv
 	fi
-	wget -N --no-check-certificate "https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/ocserv.sh" && chmod +x ocserv.sh
+	wget -N --no-check-certificate "https://raw.githubusercontent.com/liran/blog/master/ocserv.sh" && chmod +x ocserv.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
 check_sys
 [[ ${release} != "debian" ]] && [[ ${release} != "ubuntu" ]] && echo -e "${Error} 本脚本不支持当前系统 ${release} !" && exit 1
 echo && echo -e " ocserv 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
-  -- Toyo | doub.io/vpnzy-7 --
+  -- Liran | https://github.com/liran/blog --
   
- ${Green_font_prefix}0.${Font_color_suffix} 升级脚本
+ ${Green_font_prefix}0.${Font_color_suffix}  升级脚本
 ————————————
- ${Green_font_prefix}1.${Font_color_suffix} 安装 ocserv
- ${Green_font_prefix}2.${Font_color_suffix} 卸载 ocserv
+ ${Green_font_prefix}1.${Font_color_suffix}  安装 ocserv
+ ${Green_font_prefix}2.${Font_color_suffix}  卸载 ocserv
 ————————————
- ${Green_font_prefix}3.${Font_color_suffix} 启动 ocserv
- ${Green_font_prefix}4.${Font_color_suffix} 停止 ocserv
- ${Green_font_prefix}5.${Font_color_suffix} 重启 ocserv
+ ${Green_font_prefix}3.${Font_color_suffix}  启动 ocserv
+ ${Green_font_prefix}4.${Font_color_suffix}  停止 ocserv
+ ${Green_font_prefix}5.${Font_color_suffix}  重启 ocserv
 ————————————
- ${Green_font_prefix}6.${Font_color_suffix} 设置 账号配置
- ${Green_font_prefix}7.${Font_color_suffix} 查看 配置信息
- ${Green_font_prefix}8.${Font_color_suffix} 修改 配置文件
- ${Green_font_prefix}9.${Font_color_suffix} 查看 日志信息
+ ${Green_font_prefix}6.${Font_color_suffix}  设置 账号配置
+ ${Green_font_prefix}7.${Font_color_suffix}  查看 配置信息
+ ${Green_font_prefix}8.${Font_color_suffix}  修改 配置文件
+ ${Green_font_prefix}9.${Font_color_suffix}  查看 日志信息
+ ${Green_font_prefix}10.${Font_color_suffix} 生成证书
 ————————————" && echo
 if [[ -e ${file} ]]; then
 	check_pid
@@ -576,7 +578,10 @@ case "$num" in
 	9)
 	View_Log
 	;;
+	10)
+	Generate_SSL
+	;;
 	*)
-	echo "请输入正确数字 [0-9]"
+	echo "请输入正确数字 [0-10]"
 	;;
 esac
