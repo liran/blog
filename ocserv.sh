@@ -9,7 +9,7 @@ export PATH
 #	Author: Toyo
 #	Blog: https://doub.io/vpnzy-7/
 #=================================================
-sh_ver="1.0.5"
+sh_ver="1.0.6"
 file="/usr/local/sbin/ocserv"
 conf_file="/etc/ocserv"
 conf="/etc/ocserv/ocserv.conf"
@@ -26,6 +26,7 @@ Tip="${Green_font_prefix}[注意]${Font_color_suffix}"
 check_root(){
 	[[ $EUID != 0 ]] && echo -e "${Error} 当前非ROOT账号(或没有ROOT权限)，无法继续操作，请更换ROOT账号或使用 ${Green_background_prefix}sudo su${Font_color_suffix} 命令获取临时ROOT权限（执行后可能会提示输入当前账号的密码）。" && exit 1
 }
+
 #检查系统
 check_sys(){
 	if [[ -f /etc/redhat-release ]]; then
@@ -45,10 +46,12 @@ check_sys(){
     fi
 	#bit=`uname -m`
 }
+
 check_installed_status(){
 	[[ ! -e ${file} ]] && echo -e "${Error} ocserv 没有安装，请检查 !" && exit 1
 	[[ ! -e ${conf} ]] && echo -e "${Error} ocserv 配置文件不存在，请检查 !" && [[ $1 != "un" ]] && exit 1
 }
+
 check_pid(){
 	if [[ ! -e ${PID_FILE} ]]; then
 		PID=""
@@ -56,19 +59,25 @@ check_pid(){
 		PID=$(cat ${PID_FILE})
 	fi
 }
+
 Get_ip(){
-	read -e -p "请输入服务器的域名(默认: 外网IP):" ip
-	[[ -z "${ip}" ]] && ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 	if [[ -z "${ip}" ]]; then
-		ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+		read -e -p "请输入服务器的域名(默认: 外网IP):" ip
 		if [[ -z "${ip}" ]]; then
-			ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+			ip=$(wget -qO- -t1 -T2 ipinfo.io/ip)
 			if [[ -z "${ip}" ]]; then
-				ip="VPS_IP"
+				ip=$(wget -qO- -t1 -T2 api.ip.sb/ip)
+				if [[ -z "${ip}" ]]; then
+					ip=$(wget -qO- -t1 -T2 members.3322.org/dyndns/getip)
+					if [[ -z "${ip}" ]]; then
+						ip="VPS_IP"
+					fi
+				fi
 			fi
 		fi
 	fi
 }
+
 Download_ocserv(){
 	mkdir "ocserv" && cd "ocserv"
 	wget "ftp://ftp.infradead.org/pub/ocserv/ocserv-${ocserv_ver}.tar.xz"
@@ -88,6 +97,7 @@ Download_ocserv(){
 		echo -e "${Error} ocserv 编译安装失败，请检查！" && exit 1
 	fi
 }
+
 Service_ocserv(){
 	if ! wget --no-check-certificate https://raw.githubusercontent.com/ToyoDAdoubi/doubi/master/service/ocserv_debian -O /etc/init.d/ocserv; then
 		echo -e "${Error} ocserv 服务 管理脚本下载失败 !" && over
@@ -96,12 +106,14 @@ Service_ocserv(){
 	update-rc.d -f ocserv defaults
 	echo -e "${Info} ocserv 服务 管理脚本下载完成 !"
 }
+
 rand(){
 	min=10000
 	max=$((60000-$min+1))
 	num=$(date +%s%N)
 	echo $(($num%$max+$min))
 }
+
 Generate_SSL(){
 	lalala=$(rand)
 	mkdir /tmp/ssl && cd /tmp/ssl
@@ -122,7 +134,7 @@ crl_signing_key' > ca.tmpl
 	Get_ip
 	if [[ -z "$ip" ]]; then
 		echo -e "${Error} 检测外网IP失败 !"
-		read -e -p "请手动输入你的服务器外网IP:" ip
+		read -e -p "请手动输入外网IP:" ip
 		[[ -z "${ip}" ]] && echo "取消..." && over
 	fi
 	echo -e 'cn = "'${ip}'"
@@ -144,6 +156,7 @@ tls_www_server' > server.tmpl
 	mv server-key.pem /etc/ocserv/ssl/server-key.pem
 	cd .. && rm -rf /tmp/ssl/
 }
+
 Installation_dependency(){
 	[[ ! -e "/dev/net/tun" ]] && echo -e "${Error} 你的VPS没有开启TUN，请联系IDC或通过VPS控制面板打开TUN/TAP开关 !" && exit 1
 	if [[ ${release} = "centos" ]]; then
@@ -167,6 +180,7 @@ Installation_dependency(){
 		apt-get install vim net-tools pkg-config build-essential libgnutls28-dev libwrap0-dev liblz4-dev libseccomp-dev libreadline-dev libnl-nf-3-dev libev-dev gnutls-bin -y
 	fi
 }
+
 Install_ocserv(){
 	check_root
 	[[ -e ${file} ]] && echo -e "${Error} ocserv 已安装，请检查 !" && exit 1
@@ -190,6 +204,7 @@ Install_ocserv(){
 	echo -e "${Info} 所有步骤 安装完毕，开始启动..."
 	Start_ocserv
 }
+
 Start_ocserv(){
 	check_installed_status
 	check_pid
@@ -199,12 +214,14 @@ Start_ocserv(){
 	check_pid
 	[[ ! -z ${PID} ]] && View_Config
 }
+
 Stop_ocserv(){
 	check_installed_status
 	check_pid
 	[[ -z ${PID} ]] && echo -e "${Error} ocserv 没有运行，请检查 !" && exit 1
 	/etc/init.d/ocserv stop
 }
+
 Restart_ocserv(){
 	check_installed_status
 	check_pid
@@ -214,6 +231,7 @@ Restart_ocserv(){
 	check_pid
 	[[ ! -z ${PID} ]] && View_Config
 }
+
 Set_ocserv(){
 	[[ ! -e ${conf} ]] && echo -e "${Error} ocserv 配置文件不存在 !" && exit 1
 	tcp_port=$(cat ${conf}|grep "tcp-port ="|awk -F ' = ' '{print $NF}')
@@ -319,6 +337,7 @@ List_User(){
 		echo -e ${user_list_all}
 	fi
 }
+
 Add_User(){
 	Set_username
 	Set_passwd
@@ -332,6 +351,7 @@ Add_User(){
 		echo -e "${Error} 账号添加失败 ![ ${username} ]" && exit 1
 	fi
 }
+
 Del_User(){
 	List_User
 	[[ ${User_num} == 1 ]] && echo -e "${Error} 当前仅剩一个账号配置，无法删除 !" && exit 1
@@ -348,6 +368,7 @@ Del_User(){
 		echo -e "${Error} 删除失败 ! [${Del_username}]" && exit 1
 	fi
 }
+
 Modify_User_disabled(){
 	List_User
 	echo -e "请输入要启用/禁用的VPN账号的用户名"
@@ -374,6 +395,7 @@ Modify_User_disabled(){
 			fi
 		fi
 }
+
 Set_Pass(){
 	check_installed_status
 	echo && echo -e " 你要做什么？
@@ -400,6 +422,7 @@ Set_Pass(){
 		echo -e "${Error} 请输入正确的数字[1-3]" && exit 1
 	fi
 }
+
 View_Config(){
 	Get_ip
 	Read_config
@@ -413,11 +436,13 @@ View_Config(){
 	echo -e "\n 客户端链接请填写 : ${Green_font_prefix}${ip}:${tcp_port}${Font_color_suffix}"
 	echo && echo "==================================================="
 }
+
 View_Log(){
 	[[ ! -e ${log_file} ]] && echo -e "${Error} ocserv 日志文件不存在 !" && exit 1
 	echo && echo -e "${Tip} 按 ${Red_font_prefix}Ctrl+C${Font_color_suffix} 终止查看日志" && echo -e "如果需要查看完整日志内容，请用 ${Red_font_prefix}cat ${log_file}${Font_color_suffix} 命令。" && echo
 	tail -f ${log_file}
 }
+
 Uninstall_ocserv(){
 	check_installed_status "un"
 	echo "确定要卸载 ocserv ? (y/N)"
@@ -446,6 +471,7 @@ Uninstall_ocserv(){
 		echo && echo "卸载已取消..." && echo
 	fi
 }
+
 over(){
 	update-rc.d -f ocserv remove
 	rm -rf /etc/init.d/ocserv
@@ -460,17 +486,21 @@ over(){
 	rm -f occtl.8
 	echo && echo "安装过程错误，ocserv 卸载完成 !" && echo
 }
+
 Add_iptables(){
 	iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${set_tcp_port} -j ACCEPT
 	iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${set_udp_port} -j ACCEPT
 }
+
 Del_iptables(){
 	iptables -D INPUT -m state --state NEW -m tcp -p tcp --dport ${tcp_port} -j ACCEPT
 	iptables -D INPUT -m state --state NEW -m udp -p udp --dport ${udp_port} -j ACCEPT
 }
+
 Save_iptables(){
 	iptables-save > /etc/iptables.up.rules
 }
+
 Set_iptables(){
 	echo -e "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 	sysctl -p
@@ -509,6 +539,7 @@ Set_iptables(){
 	echo -e '#!/bin/bash\n/sbin/iptables-restore < /etc/iptables.up.rules' > /etc/network/if-pre-up.d/iptables
 	chmod +x /etc/network/if-pre-up.d/iptables
 }
+
 Update_Shell(){
 	sh_new_ver=$(wget --no-check-certificate -qO- -t1 -T3 "https://raw.githubusercontent.com/liran/blog/master/ocserv.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1) && sh_new_type="github"
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 无法链接到 Github !" && exit 0
@@ -519,6 +550,7 @@ Update_Shell(){
 	wget -N --no-check-certificate "https://raw.githubusercontent.com/liran/blog/master/ocserv.sh" && chmod +x ocserv.sh
 	echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !(注意：因为更新方式为直接覆盖当前运行的脚本，所以可能下面会提示一些报错，无视即可)" && exit 0
 }
+
 check_sys
 [[ ${release} != "debian" ]] && [[ ${release} != "ubuntu" ]] && echo -e "${Error} 本脚本不支持当前系统 ${release} !" && exit 1
 echo && echo -e " ocserv 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix}
